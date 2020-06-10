@@ -7,9 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Vector;
+import java.util.*;
 
 
 public class front extends JFrame implements Phase {
@@ -293,6 +291,39 @@ public class front extends JFrame implements Phase {
     }
 
     private void result() throws IOException, ClassNotFoundException {
+
+        ArrayList<Joueur> classement = new ArrayList<>(PlayerManche.getVector());
+
+        Collections.sort(classement, new Comparator<Joueur>() {
+            @Override
+            public int compare(Joueur o1, Joueur o2) {
+                return Integer.compare(o1.getScore(), o2.getScore());
+            }
+        });
+        
+        for(int i=0; i<classement.size(); i++){
+            if (i==classement.size()-4){
+                fourth.setText(classement.get(i).getNom());
+                Score4.setText(String.valueOf(classement.get(i).getScore()));
+                continue;
+            }
+            if (i==classement.size()-3){
+                Third.setText(classement.get(i).getNom());
+                Score3.setText(String.valueOf(classement.get(i).getScore()));
+                continue;
+            }
+            if (i==classement.size()-2){
+                Second.setText(classement.get(i).getNom());
+                Score2.setText(String.valueOf(classement.get(i).getScore()));
+                continue;
+            }
+            if (i==classement.size()-1){
+                First.setText(classement.get(i).getNom());
+                Score1.setText(String.valueOf(classement.get(i).getScore()));
+            }
+        }
+
+
         this.setContentPane(result);
         this.setSize(500, 200);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -317,7 +348,6 @@ public class front extends JFrame implements Phase {
         QCMrep3.setText(Question.getTexte().getReponses().get(2));
 
     }
-
 
     private void VF(Question<VF> Question) throws IOException, ClassNotFoundException {
         this.setContentPane(VF);

@@ -3,7 +3,7 @@ package projet;
 import java.io.Serializable;
 import java.util.Vector;
 
-public class EnsJoueurs implements Comparable<Joueur> {
+public class EnsJoueurs {
     private Vector<Joueur> vector = new Vector<Joueur>(20);
 
     public void creer(Vector<Joueur> vector) {
@@ -29,9 +29,7 @@ public class EnsJoueurs implements Comparable<Joueur> {
         return vector.size();
     }
 
-
-    @Override
-    public int compareTo(Joueur joueur) {
-        return 0;
+    public Vector<Joueur> getVector() {
+        return vector;
     }
 }
