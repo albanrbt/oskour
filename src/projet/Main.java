@@ -1,5 +1,6 @@
 package projet;
 
+import projet.graphic.ThemeVue;
 import projet.graphic.front;
 import java.io.*;
 import java.util.ArrayList;
@@ -9,11 +10,16 @@ import java.util.Vector;
 public class Main implements Serializable {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-       initialisationthemesQ();
+       //initialisationthemesQ();
        //testSerialization();
-         initialisationjoueurs();
+        // initialisationjoueurs();
         testGraphe();
+        //testThemeVue();
 
+    }
+
+    private static void testThemeVue(){
+        ThemeVue t = new ThemeVue();
     }
 
     private static void testGraphe() throws IOException, ClassNotFoundException {
@@ -42,7 +48,7 @@ public class Main implements Serializable {
         /** création fichier theme **/
         list.add("Histoire");
         list.add("Geographie");
-        list.add("Voiture");
+        list.add("Automobile");
         list.add("Mathématiques");
         list.add("Francais");
         list.add("Cuisine");

@@ -74,6 +74,19 @@ public class front extends JFrame implements Phase {
     private JLabel Time3;
     private JLabel Time4;
     private JButton Next;
+    private JPanel menu;
+    private JLabel Welcome;
+    private JButton StartGame;
+    private JButton Quit;
+    private JButton EtatJ;
+    private JPanel SelectthemeP2;
+    private JLabel P2Selecttheme;
+    private JButton button1;
+    private JButton button2;
+    private JButton button3;
+    private JButton button4;
+    private JButton button5;
+    private JButton button6;
 
     /**
      * Variables divers et variées
@@ -85,8 +98,49 @@ public class front extends JFrame implements Phase {
     private Themes themes;
     private int ChoixTheme;
     private Question question;
+    private Joueur LastP1;
+    private Joueur LastP2;
+    private Joueur LastP3;
+    private int phase;
 
     public front() throws IOException, ClassNotFoundException {
+        StartGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                phase = 1;
+                try {
+                    saisisNom();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Next.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                phase++;
+                if (phase == 2) {
+                    try {
+                        Phase2();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+
+        Quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.exit(0);
+            }
+        });
 
         RcButton.addActionListener(new ActionListener() {
             @Override
@@ -177,12 +231,12 @@ public class front extends JFrame implements Phase {
             }
         });
 
-        this.setContentPane(NomJoueur);
+        this.setContentPane(menu);
         this.setSize(500, 200);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
-        saisisNom();
+
     }
 
 
@@ -190,6 +244,9 @@ public class front extends JFrame implements Phase {
      * Permet de modifier les noms des joueurs séléctionnés
      **/
     private void saisisNom() throws IOException, ClassNotFoundException {
+        this.setContentPane(NomJoueur);
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
         File fichier = new File("src/projet/joueur/listeJoueurs.txt");
         /** lecture du fichier**/
         ObjectInputStream b = new ObjectInputStream(new FileInputStream(fichier));
@@ -245,12 +302,6 @@ public class front extends JFrame implements Phase {
         getTheme();
         //themes.afficher();
         ChoixTheme = (int) (Math.random() * 100) % themes.size();
-//        for (int i = 0; i < PlayerManche.size(); i++) {
-//            String th = SelectThemes();
-//            System.out.println(th);
-//            System.out.println(i);
-//            PlayerManche.getJoueur(i).setScore(QuestP1(th, i));
-//        }
         Phase1();
     }
 
@@ -290,8 +341,12 @@ public class front extends JFrame implements Phase {
         }
     }
 
-    private void result() throws IOException, ClassNotFoundException {
+    private void Phase2() throws IOException, ClassNotFoundException {
+        this.setContentPane(SelectthemeP2);
+    }
 
+    private void result() throws IOException, ClassNotFoundException {
+        numJoueurs = 0;
         resetClassement();
 
         ArrayList<Joueur> classement = new ArrayList<>(PlayerManche.getVector());
@@ -303,23 +358,26 @@ public class front extends JFrame implements Phase {
             }
         });
 
-        for(int i=0; i<classement.size(); i++){
-            if (i==classement.size()-4){
+        for (int i = 0; i < classement.size(); i++) {
+            if (i == classement.size() - 4) {
                 fourth.setText(classement.get(i).getNom());
                 Score4.setText(String.valueOf(classement.get(i).getScore()));
+                LastP1 = classement.get(i);
                 continue;
             }
-            if (i==classement.size()-3){
+            if (i == classement.size() - 3) {
                 Third.setText(classement.get(i).getNom());
                 Score3.setText(String.valueOf(classement.get(i).getScore()));
+                LastP2 = classement.get(i);
                 continue;
             }
-            if (i==classement.size()-2){
+            if (i == classement.size() - 2) {
                 Second.setText(classement.get(i).getNom());
                 Score2.setText(String.valueOf(classement.get(i).getScore()));
+                LastP3 = classement.get(i);
                 continue;
             }
-            if (i==classement.size()-1){
+            if (i == classement.size() - 1) {
                 First.setText(classement.get(i).getNom());
                 Score1.setText(String.valueOf(classement.get(i).getScore()));
             }
@@ -332,10 +390,29 @@ public class front extends JFrame implements Phase {
         this.setLocationRelativeTo(null);
         this.setVisible(true);
 
+        int ToRemove = -1;
+        System.out.println(classement.indexOf(LastP1));
+        if (!fourth.getText().isEmpty()) {
+            ToRemove = classement.indexOf(LastP1);
+
+        } else if (!Third.getText().isEmpty()) {
+            ToRemove = classement.indexOf(LastP2);
+
+        } else if (!Second.getText().isEmpty()) {
+            ToRemove = classement.indexOf(LastP3);
+
+        }
+        System.out.println("index du pas beau : " + ToRemove);
+        if (ToRemove != -1) {
+            PlayerManche.remove(classement.get(ToRemove));
+        }
+        PlayerManche.afficher();
+        PlayerManche.size();
+        System.out.println("joueur enlevé");
 
     }
 
-    private void resetClassement(){
+    private void resetClassement() {
 
         fourth.setText("");
         Score4.setText("");
@@ -377,7 +454,6 @@ public class front extends JFrame implements Phase {
 
         NomJVF.setText(PlayerManche.getJoueur(numJoueurs).getNom());
         VfQuest.setText(Question.getTexte().getTexte());
-
 
 
     }
@@ -755,6 +831,61 @@ public class front extends JFrame implements Phase {
         Next = new JButton();
         Next.setText("Suite");
         result.add(Next, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        menu = new JPanel();
+        menu.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        frontGame.add(menu, gbc);
+        Welcome = new JLabel();
+        Welcome.setText("Bienvenue dans le jeu");
+        menu.add(Welcome, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer14 = new com.intellij.uiDesigner.core.Spacer();
+        menu.add(spacer14, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer15 = new com.intellij.uiDesigner.core.Spacer();
+        menu.add(spacer15, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        StartGame = new JButton();
+        StartGame.setText("Jouer");
+        menu.add(StartGame, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        Quit = new JButton();
+        Quit.setText("Quitter");
+        menu.add(Quit, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        EtatJ = new JButton();
+        EtatJ.setText("Score");
+        menu.add(EtatJ, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 3, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        SelectthemeP2 = new JPanel();
+        SelectthemeP2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.fill = GridBagConstraints.BOTH;
+        frontGame.add(SelectthemeP2, gbc);
+        P2Selecttheme = new JLabel();
+        P2Selecttheme.setText("Selectionner un thème");
+        SelectthemeP2.add(P2Selecttheme, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer16 = new com.intellij.uiDesigner.core.Spacer();
+        SelectthemeP2.add(spacer16, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final com.intellij.uiDesigner.core.Spacer spacer17 = new com.intellij.uiDesigner.core.Spacer();
+        SelectthemeP2.add(spacer17, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        button1 = new JButton();
+        button1.setText("Button");
+        SelectthemeP2.add(button1, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        button2 = new JButton();
+        button2.setText("Button");
+        SelectthemeP2.add(button2, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        button3 = new JButton();
+        button3.setText("Button");
+        SelectthemeP2.add(button3, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        button4 = new JButton();
+        button4.setText("Button");
+        SelectthemeP2.add(button4, new com.intellij.uiDesigner.core.GridConstraints(2, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        button5 = new JButton();
+        button5.setText("Button");
+        SelectthemeP2.add(button5, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        button6 = new JButton();
+        button6.setText("Button");
+        SelectthemeP2.add(button6, new com.intellij.uiDesigner.core.GridConstraints(3, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

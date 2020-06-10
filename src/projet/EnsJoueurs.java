@@ -29,6 +29,9 @@ public class EnsJoueurs {
         return vector.size();
     }
 
+    public void remove(Joueur ToRemove){
+        vector.remove(ToRemove);
+    }
     public Vector<Joueur> getVector() {
         return vector;
     }
