@@ -79,6 +79,16 @@ public class Themes {
         return themesChoisis;
     }
 
+    public ArrayList<String> selectionner6Themes() {
+        ArrayList<String> themesCopie = new ArrayList<>(themes);
+        ArrayList<String> themesChoisis = new ArrayList<>();
+        IntStream.range(0, 6).map(i -> (int)(Math.random() * 100) % themesCopie.size()).forEachOrdered(randomNum -> {
+            themesChoisis.add(themesCopie.get(randomNum)); // selection random
+            themesCopie.remove(randomNum);
+        });
+        return themesChoisis;
+    }
+
     // affiche la liste et le theme choisi
     public void afficher() {
         System.out.println("Liste des th\u00e8mes :");
@@ -95,5 +105,10 @@ public class Themes {
 
     public int size(){
         return themes.size();
+    }
+
+    public void clear(){
+        themes.clear();
+        indicateur = -1;
     }
 }

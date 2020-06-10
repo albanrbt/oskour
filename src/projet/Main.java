@@ -12,7 +12,7 @@ public class Main implements Serializable {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
        //initialisationthemesQ();
        //testSerialization();
-        // initialisationjoueurs();
+         initialisationjoueurs();
         testGraphe();
         //testThemeVue();
 

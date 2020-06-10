@@ -30,7 +30,9 @@ public class Joueur implements Serializable {
         nom = nomJ;
     }
 
-
+    public void setEtat(String etat) {
+        this.etat = etat;
+    }
 
     public boolean saisir(Question Question) {
         System.out.println("Saisir la r\u00e9ponse : ");

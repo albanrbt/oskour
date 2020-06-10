@@ -30,6 +30,7 @@ public class EnsJoueurs {
     }
 
     public void remove(Joueur ToRemove){
+        ToRemove.setEtat("\u00e9limin\u00e9");
         vector.remove(ToRemove);
     }
     public Vector<Joueur> getVector() {

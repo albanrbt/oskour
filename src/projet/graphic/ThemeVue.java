@@ -6,20 +6,49 @@ import projet.Question;
 import projet.RC;
 import projet.VF;
 
-import javax.swing.*;
-import javax.swing.table.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.WindowConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Theme vue.
+ */
 public class ThemeVue extends JFrame {
     private JList jList;
     private JLabel label;
@@ -51,6 +80,9 @@ public class ThemeVue extends JFrame {
     private JScrollPane scrollPane = new JScrollPane(table);
     private DefaultTableCellRenderer cellRenderer;
 
+    /**
+     * Instantiates a new Theme vue.
+     */
     public ThemeVue() {
         // config fenetre
         this.setContentPane(panel);
@@ -84,12 +116,19 @@ public class ThemeVue extends JFrame {
                     }
                 }
             });
+            fi.close();
+            oi.close();
         } catch (IOException |
                 ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Menu.
+     *
+     * @param theme the theme
+     */
     public void menu(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         JButton back = new JButton("Pr\u00e9c\u00e9dent");
@@ -114,11 +153,19 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> back()); // retour a la fenetre precedente
     }
 
+    /**
+     * Back.
+     */
     public void back() {
         this.dispose();
         new ThemeVue();
     }
 
+    /**
+     * Modifier theme.
+     *
+     * @param theme the theme
+     */
     public void modifierTheme(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         // initialisation des composants
@@ -167,12 +214,14 @@ public class ThemeVue extends JFrame {
                         } else {
                             String themeChoisi = theme.substring(0, 1).toUpperCase() + theme.substring(1).toLowerCase(); // en minuscules
                             String themeModifie = themeField.getText().substring(0, 1).toUpperCase() + themeField.getText().substring(1).toLowerCase();
-                            System.out.println(list.indexOf(themeChoisi));
-                            list.add(list.indexOf(themeChoisi), themeModifie); // remplace le theme
-                            System.out.println(list.indexOf(themeField.getText()));
+                            list.set(list.indexOf(themeChoisi), themeModifie); // remplace le theme
                             a.writeObject(list); // ecrit dans le fichier txt en question
                             JOptionPane.showMessageDialog(panel6, "Th\u00e8me modifi\u00e9 !");
+                            back();
                         }
+                        fi.close();
+                        oi.close();
+                        a.close();
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -182,6 +231,9 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> menu(theme)); // retour a la fenetre precedente
     }
 
+    /**
+     * Create window.
+     */
     public void createWindow() {
         this.dispose();
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -219,6 +271,11 @@ public class ThemeVue extends JFrame {
         sorter.sort();
     }
 
+    /**
+     * Afficher question.
+     *
+     * @param theme the theme
+     */
     public void afficherQuestion(String theme) {
         createWindow();
         model.setRowCount(0);
@@ -245,48 +302,54 @@ public class ThemeVue extends JFrame {
                         String themeChoisi = theme.substring(0, 1).toUpperCase() + theme.substring(1).toLowerCase(); // en minuscules et 1ere lettre en maj
                         // deserialize
                         FileInputStream fi = new FileInputStream(new File("src/projet/themesQ/" + themeChoisi + ".txt"));
-                        ObjectInputStream oi = new ObjectInputStream(fi);
-                        LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
-                        int lvl = Integer.parseInt(niveauField.getText());
-                        for (int i = 0; i < qList.size(); i++) {
-                            int niveau = qList.get(i).getNiveau();
-                            if (lvl == niveau) {
-                                int num = i;
-                                String question = "";
-                                String bonneRep = "";
-                                String rep2 = "";
-                                String rep3 = "";
-                                Object texte = qList.get(i).getTexte();
-                                String test = String.valueOf(texte.getClass());
-                                String type = test.substring(test.lastIndexOf(".") + 1); // recupere le type de la question
-                                if (type.equals("RC")) {
-                                    RC rc = qList.get(i).isRC();
-                                    question = rc.getTexte();
-                                    bonneRep = rc.getBonneRep();
-                                } else if (type.equals("QCM")) {
-                                    QCM qcm = qList.get(i).isQCM();
-                                    question = qcm.gettexte();
-                                    bonneRep = qcm.getBonneRep();
-                                    ArrayList<String> arrayList = qcm.getReponses();
-                                    int j = 0;
-                                    int count = 0;
-                                    ArrayList<String> array2 = new ArrayList<>(arrayList.size() - count); // copie
-                                    String remove = bonneRep;
-                                    for (String s : arrayList) { // copie l'array sans la bonne rep
-                                        if (!s.equals(remove)) {
-                                            array2.add(j++, s);
+                        if (fi.available() <= 0) {
+                            JOptionPane.showMessageDialog(panel4, "Il n'y a pas de question pour ce th\u00e8me !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            ObjectInputStream oi = new ObjectInputStream(fi);
+                            LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                            int lvl = Integer.parseInt(niveauField.getText());
+                            for (int i = 0; i < qList.size(); i++) {
+                                int niveau = qList.get(i).getNiveau();
+                                if (lvl == niveau) {
+                                    int num = i;
+                                    String question = "";
+                                    String bonneRep = "";
+                                    String rep2 = "";
+                                    String rep3 = "";
+                                    Object texte = qList.get(i).getTexte();
+                                    String test = String.valueOf(texte.getClass());
+                                    String type = test.substring(test.lastIndexOf(".") + 1); // recupere le type de la question
+                                    if (type.equals("RC")) {
+                                        RC rc = qList.get(i).isRC();
+                                        question = rc.getTexte();
+                                        bonneRep = rc.getBonneRep();
+                                    } else if (type.equals("QCM")) {
+                                        QCM qcm = qList.get(i).isQCM();
+                                        question = qcm.gettexte();
+                                        bonneRep = qcm.getBonneRep();
+                                        ArrayList<String> arrayList = qcm.getReponses();
+                                        int j = 0;
+                                        int count = 0;
+                                        ArrayList<String> array2 = new ArrayList<>(arrayList.size() - count); // copie
+                                        String remove = bonneRep;
+                                        for (String s : arrayList) { // copie l'array sans la bonne rep
+                                            if (!s.equals(remove)) {
+                                                array2.add(j++, s);
+                                            }
                                         }
+                                        // init reps
+                                        rep2 = array2.get(0);
+                                        rep3 = array2.get(1);
+                                    } else if (type.equals("VF")) {
+                                        VF vf = qList.get(i).isVF();
+                                        question = vf.getTexte();
+                                        bonneRep = String.valueOf(vf.isBonneRep());
                                     }
-                                    // init reps
-                                    rep2 = array2.get(0);
-                                    rep3 = array2.get(1);
-                                } else if (type.equals("VF")) {
-                                    VF vf = qList.get(i).isVF();
-                                    question = vf.getTexte();
-                                    bonneRep = String.valueOf(vf.isBonneRep());
+                                    model.addRow(new Object[]{num, type, question, bonneRep, rep2, rep3, niveau}); // ajoute la ligne dans la table
                                 }
-                                model.addRow(new Object[]{num, type, question, bonneRep, rep2, rep3, niveau}); // ajoute la ligne dans la table
                             }
+                            fi.close();
+                            oi.close();
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
@@ -297,7 +360,11 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> menu(theme)); // retour a la fenetre precedente
     }
 
-
+    /**
+     * Supprimer question.
+     *
+     * @param theme the theme
+     */
     public void supprimerQuestion(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         // initialisation des composants
@@ -337,19 +404,26 @@ public class ThemeVue extends JFrame {
                         String themeChoisi = theme.substring(0, 1).toUpperCase() + theme.substring(1).toLowerCase(); // en minuscules
                         // deserialize
                         FileInputStream fi = new FileInputStream(new File("src/projet/themesQ/" + themeChoisi + ".txt"));
-                        ObjectInputStream oi = new ObjectInputStream(fi);
-                        LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
-                        File fichier = new File("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
-                        ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
-                        int num = Integer.parseInt(questionField.getText());
-                        if (num < 0 || num > qList.size()) {
-                            JOptionPane.showMessageDialog(panel4, "Cette question n'existe pas !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        if (fi.available() <= 0) {
+                            JOptionPane.showMessageDialog(panel4, "Il n'y pas de question pour ce th\u00e8 !", "Erreur", JOptionPane.ERROR_MESSAGE);
                         } else {
-                            System.out.println(qList);
-                            qList.remove(num); // ajout de la question créée dans la linked list
-                            System.out.println(qList);
-                            a.writeObject(qList); // ecrit dans le fichier txt en question
-                            JOptionPane.showMessageDialog(panel4, "Question supprim\u00e9e !");
+                            ObjectInputStream oi = new ObjectInputStream(fi);
+                            LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                            File fichier = new File("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            int num = Integer.parseInt(questionField.getText());
+                            if (num < 0 || num > qList.size()) {
+                                JOptionPane.showMessageDialog(panel4, "Cette question n'existe pas !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                            } else if (qList.isEmpty()) {
+                                JOptionPane.showMessageDialog(panel4, "Il n'y a pas de question !", "Erreur", JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                qList.remove(num); // ajout de la question créée dans la linked list
+                                a.writeObject(qList); // ecrit dans le fichier txt en question
+                                JOptionPane.showMessageDialog(panel4, "Question supprim\u00e9e !");
+                            }
+                            fi.close();
+                            oi.close();
+                            a.close();
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
@@ -360,6 +434,11 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> menu(theme)); // retour a la fenetre precedente
     }
 
+    /**
+     * Add question.
+     *
+     * @param theme the theme
+     */
     public void addQuestion(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         // init des elements
@@ -392,6 +471,11 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> menu(theme)); // retour a la fenetre precedente
     }
 
+    /**
+     * Add qcm.
+     *
+     * @param theme the theme
+     */
     public void addQCM(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         // initialisation des composants
@@ -453,19 +537,35 @@ public class ThemeVue extends JFrame {
                     try {
                         String themeChoisi = theme.substring(0, 1).toUpperCase() + theme.substring(1).toLowerCase(); // en minuscules
                         // deserialize
+                        FileWriter fichierr = new FileWriter("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
+                        fichierr.close();
                         File fichier = new File("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
-                        FileOutputStream out = test(themeChoisi);
-                        out.close();
-                        FileInputStream fi = new FileInputStream(new File("src/projet/themesQ/" + themeChoisi + ".txt"));
-                        ObjectInputStream oi = new ObjectInputStream(fi);
-                        LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
-                        ObjectOutputStream a = new ObjectOutputStream(test(themeChoisi));
-                        // init question
-                        ArrayList<String> reps = new ArrayList<>(Arrays.asList(bonneRepField.getText(), rep2Field.getText(), rep3Field.getText()));
-                        Question<QCM> question = new Question<>(new QCM(questionField.getText(), reps, bonneRepField.getText()), Integer.parseInt(niveauField.getText()), themeChoisi);
-                        qList.add(question); // ajout de la question créée dans la linked list
-                        a.writeObject(qList); // ecrit dans le fichier txt en question
-                        JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                        FileInputStream fi = new FileInputStream(fichier);
+                        if (fi.available() <= 0) {  // fichier vient d'etre cree
+                            LinkedList<Question<? extends QType>> qList = new LinkedList<>();
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            // init question
+                            ArrayList<String> reps = new ArrayList<>(Arrays.asList(bonneRepField.getText(), rep2Field.getText(), rep3Field.getText()));
+                            Question<QCM> question = new Question<>(new QCM(questionField.getText(), reps, bonneRepField.getText()), Integer.parseInt(niveauField.getText()), themeChoisi);
+                            qList.add(question); // ajout de la question créée dans la linked list
+                            a.writeObject(qList); // ecrit dans le fichier txt en question
+                            JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                            fi.close();
+                            a.close();
+                        } else {
+                            ObjectInputStream oi = new ObjectInputStream(fi);
+                            LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            // init question
+                            ArrayList<String> reps = new ArrayList<>(Arrays.asList(bonneRepField.getText(), rep2Field.getText(), rep3Field.getText()));
+                            Question<QCM> question = new Question<>(new QCM(questionField.getText(), reps, bonneRepField.getText()), Integer.parseInt(niveauField.getText()), themeChoisi);
+                            qList.add(question); // ajout de la question créée dans la linked list
+                            a.writeObject(qList); // ecrit dans le fichier txt en question
+                            JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                            fi.close();
+                            oi.close();
+                            a.close();
+                        }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -475,15 +575,22 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> backadd(theme)); // retour a la fenetre precedente
     }
 
-    public FileOutputStream test(String themeChoisi) throws FileNotFoundException {
-        return new FileOutputStream("src/projet/themesQ/" + themeChoisi + ".txt");
-    }
 
+    /**
+     * Backadd.
+     *
+     * @param theme the theme
+     */
     public void backadd(String theme) {
         this.dispose(); // quitte la fenetre inutile
         addQuestion(theme);
     }
 
+    /**
+     * Add rc.
+     *
+     * @param theme the theme
+     */
     public void addRC(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         // initialisation des composants
@@ -534,16 +641,34 @@ public class ThemeVue extends JFrame {
                     try {
                         String themeChoisi = theme.substring(0, 1).toUpperCase() + theme.substring(1).toLowerCase(); // en minuscules
                         // deserialize
-                        FileInputStream fi = new FileInputStream(new File("src/projet/themesQ/" + themeChoisi + ".txt"));
-                        ObjectInputStream oi = new ObjectInputStream(fi);
-                        LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                        FileWriter fichierr = new FileWriter("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
+                        fichierr.close();
                         File fichier = new File("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
-                        ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
-                        // init question
-                        Question<RC> question = new Question<>(new RC(texteField.getText(), bonneRepField.getText()), Integer.parseInt(niveauField.getText()), themeChoisi);
-                        qList.add(question); // ajout de la question créée dans la linked list
-                        a.writeObject(qList); // ecrit dans le fichier txt en question
-                        JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                        FileInputStream fi = new FileInputStream(fichier);
+                        if (fi.available() <= 0) { // fichier vient d'etre cree
+                            LinkedList<Question<? extends QType>> qList = new LinkedList<>(); // lecture
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            // init question
+                            Question<RC> question = new Question<>(new RC(texteField.getText(), bonneRepField.getText()), Integer.parseInt(niveauField.getText()), themeChoisi);
+                            qList.add(question); // ajout de la question créée dans la linked list
+                            a.writeObject(qList); // ecrit dans le fichier txt en question
+                            JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                            fi.close();
+                            a.close();
+                        } else {
+                            ObjectInputStream oi = new ObjectInputStream(fi);
+                            LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            // init question
+                            Question<RC> question = new Question<>(new RC(texteField.getText(), bonneRepField.getText()), Integer.parseInt(niveauField.getText()), themeChoisi);
+                            qList.add(question); // ajout de la question créée dans la linked list
+                            a.writeObject(qList); // ecrit dans le fichier txt en question
+                            JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                            fi.close();
+                            oi.close();
+                            a.close();
+                        }
+
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -553,6 +678,11 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> backadd(theme)); // retour a la fenetre precedente
     }
 
+    /**
+     * Add vf.
+     *
+     * @param theme the theme
+     */
     public void addVF(String theme) {
         this.dispose(); // dispose au cas où y a eu un appel back()
         // initialisation des composants
@@ -603,16 +733,34 @@ public class ThemeVue extends JFrame {
                     try {
                         String themeChoisi = theme.substring(0, 1).toUpperCase() + theme.substring(1).toLowerCase(); // en minuscules
                         // deserialize
-                        FileInputStream fi = new FileInputStream(new File("src/projet/themesQ/" + themeChoisi + ".txt"));
-                        ObjectInputStream oi = new ObjectInputStream(fi);
-                        LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                        FileWriter fichierr = new FileWriter("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
+                        fichierr.close();
                         File fichier = new File("src/projet/themesQ/" + themeChoisi + ".txt"); // serialize
-                        ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
-                        // init question
-                        Question<VF> question = new Question<>(new VF(texteField.getText(), Boolean.parseBoolean(String.valueOf(bonneRepBox.getSelectedItem()))), Integer.parseInt(niveauField.getText()), themeChoisi);
-                        qList.add(question); // ajout de la question créée dans la linked list
-                        a.writeObject(qList); // ecrit dans le fichier txt en question
-                        JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                        FileInputStream fi = new FileInputStream(fichier);
+                        if (fi.available() <= 0) {  // fichier vient d'etre cree
+                            LinkedList<Question<? extends QType>> qList = new LinkedList<>(); // lecture
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            // init question
+                            Question<VF> question = new Question<>(new VF(texteField.getText(), Boolean.parseBoolean(String.valueOf(bonneRepBox.getSelectedItem()))), Integer.parseInt(niveauField.getText()), themeChoisi);
+                            qList.add(question); // ajout de la question créée dans la linked list
+                            a.writeObject(qList); // ecrit dans le fichier txt en question
+                            JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                            fi.close();
+                            a.close();
+                        } else {
+                            ObjectInputStream oi = new ObjectInputStream(fi);
+                            LinkedList<Question<? extends QType>> qList = (LinkedList<Question<? extends QType>>) oi.readObject(); // lecture
+                            ObjectOutputStream a = new ObjectOutputStream(new FileOutputStream(fichier));
+                            // init question
+                            Question<VF> question = new Question<>(new VF(texteField.getText(), Boolean.parseBoolean(String.valueOf(bonneRepBox.getSelectedItem()))), Integer.parseInt(niveauField.getText()), themeChoisi);
+                            qList.add(question); // ajout de la question créée dans la linked list
+                            a.writeObject(qList); // ecrit dans le fichier txt en question
+                            JOptionPane.showMessageDialog(panel4, "Question ajout\u00e9e !");
+                            fi.close();
+                            oi.close();
+                            a.close();
+                        }
+
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -622,9 +770,15 @@ public class ThemeVue extends JFrame {
         back.addActionListener(actionEvent -> backadd(theme)); // retour a la fenetre precedente
     }
 
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     */
     public static void main(String[] args) {
         new ThemeVue();
     }
+
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -661,6 +815,9 @@ public class ThemeVue extends JFrame {
     }
 
     /**
+     * $$$ get root component $$$ j component.
+     *
+     * @return the j component
      * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
