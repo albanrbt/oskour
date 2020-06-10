@@ -1,0 +1,37 @@
+package projet;
+
+import java.io.Serializable;
+import java.util.Vector;
+
+public class EnsJoueurs implements Comparable<Joueur> {
+    private Vector<Joueur> vector = new Vector<Joueur>(20);
+
+    public void creer(Vector<Joueur> vector) {
+        this.vector = vector;
+    }
+
+    public void afficher() {
+        System.out.println("Liste des joueurs :");
+        vector.forEach(Joueur::afficher);
+    }
+
+    public Joueur selectionnerJoueur() {
+
+        int random = (int) (Math.random() * 100) % vector.size();
+        return vector.get(random);
+    }
+
+    public Joueur getJoueur(int index) {
+        return vector.get(index);
+    }
+
+    public int size(){
+        return vector.size();
+    }
+
+
+    @Override
+    public int compareTo(Joueur joueur) {
+        return 0;
+    }
+}
