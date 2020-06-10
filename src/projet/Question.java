@@ -43,6 +43,10 @@ public class Question<T extends QType>  implements Serializable {
         return texte;
     }
 
+    public QCM isQCM() {return (QCM)this.texte;}
+    public RC isRC() {return (RC)this.texte;}
+    public VF isVF() {return (VF)this.texte;}
+
     public int getNiveau() {
         return niveau;
     }

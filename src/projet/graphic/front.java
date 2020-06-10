@@ -86,14 +86,90 @@ public class front extends JFrame implements Phase {
     private EnsJoueurs Participants = new EnsJoueurs();
     private Themes themes;
     private int ChoixTheme;
-    private Question Question;
+    private Question question;
 
     public front() throws IOException, ClassNotFoundException {
 
         RcButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if (Question.getTexte().check(RcAns.getText())) {
+                if (question.isRC().check(RcAns.getText())) {
+                    PlayerManche.getJoueur(numJoueurs).setScore(2);
+                    PlayerManche.getJoueur(numJoueurs).afficher();
+                } else {
+                    PlayerManche.getJoueur(numJoueurs).setScore(0);
+                }
+                finQuest();
+            }
+        });
+
+        QCMrep1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (QCMrep1.getText().equals(question.isQCM().getBonneRep())) {
+                    System.out.println("FFFFFF : " + numJoueurs);
+                    PlayerManche.getJoueur(numJoueurs).setScore(2);
+                    PlayerManche.getJoueur(numJoueurs).afficher();
+
+                } else {
+                    PlayerManche.getJoueur(numJoueurs).setScore(0);
+                    System.out.println(numJoueurs);
+
+                }
+                finQuest();
+            }
+        });
+
+        QCMrep2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (QCMrep2.getText().equals(question.isQCM().getBonneRep())) {
+                    System.out.println(numJoueurs);
+                    PlayerManche.getJoueur(numJoueurs).setScore(2);
+                    PlayerManche.getJoueur(numJoueurs).afficher();
+
+                } else {
+                    PlayerManche.getJoueur(numJoueurs).setScore(0);
+
+                }
+                finQuest();
+            }
+        });
+
+        QCMrep3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (QCMrep3.getText().equals(question.isQCM().getBonneRep())) {
+                    PlayerManche.getJoueur(numJoueurs).setScore(2);
+                    PlayerManche.getJoueur(numJoueurs).afficher();
+
+                } else {
+                    PlayerManche.getJoueur(numJoueurs).setScore(0);
+
+                }
+                finQuest();
+            }
+        });
+
+        TrueB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                if (question.isVF().isBonneRep()) {
+                    PlayerManche.getJoueur(numJoueurs).setScore(2);
+                    PlayerManche.getJoueur(numJoueurs).afficher();
+                } else {
+                    PlayerManche.getJoueur(numJoueurs).setScore(0);
+                }
+                finQuest();
+            }
+        });
+
+        FalseB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                boolean verif = false;
+                if (!question.isVF().isBonneRep()) {
                     PlayerManche.getJoueur(numJoueurs).setScore(2);
                     PlayerManche.getJoueur(numJoueurs).afficher();
                 } else {
@@ -198,24 +274,22 @@ public class front extends JFrame implements Phase {
         qList = (LinkedList<Question<? extends QType>>) b.readObject(); /** lecture du fichier**/
         ListeQuestions listeQuestions = new ListeQuestions(qList);
 
-        Question<? extends QType> Qchoix = listeQuestions.selectionnerQuestion(1);
+        question = listeQuestions.selectionnerQuestion(1);
 
         //Qchoix.afficher();
         System.out.println("Checking type of object in Java using  getClass() ==>");
-        if (Qchoix.getTexte() instanceof QCM) {
+        if (question.getTexte() instanceof QCM) {
             System.out.println("Question_que_tu_test is instance of QCM");
-            QCM((Question<projet.QCM>) Qchoix);
+            QCM(question);
         }
-        if (Qchoix.getTexte() instanceof VF) {
+        if (question.getTexte() instanceof VF) {
             System.out.println("Question_que_tu_test is instance of VF");
-            VF((Question<projet.VF>) Qchoix);
+            VF(question);
         }
-        if (Qchoix.getTexte() instanceof RC) {
+        if (question.getTexte() instanceof RC) {
             System.out.println("Question_que_tu_test is instance of RC");
-            RC((Question<projet.RC>) Qchoix);
+            RC(question);
         }
-
-        ;
     }
 
     private void result() throws IOException, ClassNotFoundException {
@@ -242,55 +316,6 @@ public class front extends JFrame implements Phase {
         QCMrep2.setText(Question.getTexte().getReponses().get(1));
         QCMrep3.setText(Question.getTexte().getReponses().get(2));
 
-        QCMrep1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (QCMrep1.getText().equals(Question.getTexte().getBonneRep())) {
-                    System.out.println("FFFFFF : " + numJoueurs);
-                    PlayerManche.getJoueur(numJoueurs).setScore(2);
-                    PlayerManche.getJoueur(numJoueurs).afficher();
-
-                } else {
-                    PlayerManche.getJoueur(numJoueurs).setScore(0);
-                    System.out.println(numJoueurs);
-
-                }
-                finQuest();
-            }
-        });
-
-        QCMrep2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (QCMrep2.getText().equals(Question.getTexte().getBonneRep())) {
-                    System.out.println(numJoueurs);
-                    PlayerManche.getJoueur(numJoueurs).setScore(2);
-                    PlayerManche.getJoueur(numJoueurs).afficher();
-
-                } else {
-                    PlayerManche.getJoueur(numJoueurs).setScore(0);
-
-                }
-                finQuest();
-            }
-        });
-
-        QCMrep3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (QCMrep3.getText().equals(Question.getTexte().getBonneRep())) {
-                    PlayerManche.getJoueur(numJoueurs).setScore(2);
-                    PlayerManche.getJoueur(numJoueurs).afficher();
-
-                } else {
-                    PlayerManche.getJoueur(numJoueurs).setScore(0);
-
-                }
-                finQuest();
-            }
-        });
-
-
     }
 
 
@@ -305,33 +330,7 @@ public class front extends JFrame implements Phase {
         NomJVF.setText(PlayerManche.getJoueur(numJoueurs).getNom());
         VfQuest.setText(Question.getTexte().getTexte());
 
-        TrueB.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
 
-                if (Question.getTexte().isBonneRep()) {
-                    PlayerManche.getJoueur(numJoueurs).setScore(2);
-                    PlayerManche.getJoueur(numJoueurs).afficher();
-                } else {
-                    PlayerManche.getJoueur(numJoueurs).setScore(0);
-                }
-                finQuest();
-            }
-        });
-
-        FalseB.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                boolean verif = false;
-                if (!Question.getTexte().isBonneRep()) {
-                    PlayerManche.getJoueur(numJoueurs).setScore(2);
-                    PlayerManche.getJoueur(numJoueurs).afficher();
-                } else {
-                    PlayerManche.getJoueur(numJoueurs).setScore(0);
-                }
-                finQuest();
-            }
-        });
 
     }
 
