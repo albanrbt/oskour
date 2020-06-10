@@ -292,6 +292,8 @@ public class front extends JFrame implements Phase {
 
     private void result() throws IOException, ClassNotFoundException {
 
+        resetClassement();
+
         ArrayList<Joueur> classement = new ArrayList<>(PlayerManche.getVector());
 
         Collections.sort(classement, new Comparator<Joueur>() {
@@ -300,7 +302,7 @@ public class front extends JFrame implements Phase {
                 return Integer.compare(o1.getScore(), o2.getScore());
             }
         });
-        
+
         for(int i=0; i<classement.size(); i++){
             if (i==classement.size()-4){
                 fourth.setText(classement.get(i).getNom());
@@ -330,6 +332,22 @@ public class front extends JFrame implements Phase {
         this.setLocationRelativeTo(null);
         this.setVisible(true);
 
+
+    }
+
+    private void resetClassement(){
+
+        fourth.setText("");
+        Score4.setText("");
+
+        Third.setText("");
+        Score3.setText("");
+
+        Second.setText("");
+        Score2.setText("");
+
+        First.setText("");
+        Score1.setText("");
 
     }
 
